@@ -26,6 +26,10 @@ engines:
     JSON:
         canonical: 1
 
+plugins:
+    Swagger:
+        ui_dir: ../../share/
+
 # template: "template_toolkit"
 # engines:
 #   template_toolkit:

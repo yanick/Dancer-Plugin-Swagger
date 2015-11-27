@@ -1,0 +1,3 @@
+[submodule "swagger-ui"]
+	path = swagger-ui
+	url = gh:yanick/swagger-ui

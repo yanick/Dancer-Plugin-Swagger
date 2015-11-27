@@ -1,3 +1,5 @@
+# TODO: make /swagger.json configurable
+
 package Dancer::Plugin::Swagger;
 # ABSTRACT: create Swagger documentation of the app REST interface 
 
@@ -20,11 +22,30 @@ package Dancer::Plugin::Swagger;
 This plugin provides tools to create and access a L<http://swagger.io/|Swagger> specification file for a
 Dancer REST web service.
 
+Overview of C<Dancer::Plugin::Swagger>'s features:
+
+=over
+
+=item Can create a f</swagger.json> REST specification file.
+
+=item Can auto-discover routes and add them to the swagger file.
+
+=item Can provide a Swagger UI version of the swagger documentation.
+
+=back
+
+
 =head1 CONFIGURATION
 
     plugins:
         Swagger:
            main_api_module: MyApp
+           show_ui: 1
+           ui_url: /doc
+           ui_dir: /path/to/files
+           auto_discover_skip:
+            - /swagger.json
+            - qr#^/doc/#
 
 =head2 main_api_module
 
@@ -33,6 +54,31 @@ to the abstract and version of this module.
 
 Defaults to the first
 module to import L<Dancer::Plugin::Swagger>.
+
+=head2 show_ui
+
+If C<true>, a route will be created for the Swagger UI (see L<http://swagger.io/swagger-ui/>).
+
+Defaults to C<true>.
+
+=head2 ui_url
+
+Path of the swagger ui route. Will also be the prefix for all the CSS/JS dependencies of the page.
+
+Defaults to C</doc>.
+
+=head2 ui_dir
+
+Filesystem path to the directory holding the assets for the Swagger UI page.
+
+Defaults to a copy of the Swagger UI code bundled with the L<Dancer::Plugin::Swagger> distribution.
+
+=head2 auto_discover_skip
+
+List of urls that should not be added to the Swagger document by C<swagger_auto_discover>.
+If an url begins with C<qr>, it will be compiled as a regular expression.
+
+Defauls to C</swagger.json> and, if C<show_ui> is C<true>, all the urls under C<ui_url>.
 
 =head1 EXAMPLES
 
@@ -63,6 +109,7 @@ with 'MooX::Singleton';
 use Class::Load qw/ load_class /;
 
 use Path::Tiny;
+use File::ShareDir::Tarball;
 
 sub import {
     $Dancer::Plugin::Swagger::FIRST_LOADED ||= caller;
@@ -120,7 +167,67 @@ has main_api_module_content => (
     }
 );
 
+has show_ui => (
+    is => 'ro',
+    lazy => 1,
+    default => sub { plugin_setting->{show_ui} // 1 },
+);
+
+has ui_url => (
+    is => 'ro',
+    lazy => 1,
+    default => sub { plugin_setting->{ui_url} // '/doc' },
+);
+
+has ui_dir => (
+    is => 'ro',
+    lazy => 1,
+    default => sub { 
+        Path::Tiny::path(
+            plugin_setting->{ui_dir} ||
+                File::ShareDir::Tarball::dist_dir('Dancer-Plugin-Swagger')
+        )
+    },
+);
+
+has auto_discover_skip => (
+    is => 'ro',
+    lazy => 1,
+    default => sub { [
+            map { /^qr/ ? eval $_ : $_ }
+        @{ plugin_setting->{auto_discover_skip} || [
+            '/swagger.json', ( 'qr!' . $_[0]->ui_url . '!' ) x $_[0]->show_ui
+        ] }
+    ];
+    },
+);
+
 my $plugin = __PACKAGE__->instance;
+
+if ( $plugin->show_ui ) {
+    my $base_url = $plugin->ui_url;
+
+    get $base_url => sub {
+        my $file = $plugin->ui_dir->child('index.html');
+
+        send_error "file not found", 404 unless -f $file;
+
+        my $content = $file->slurp;
+        $content =~ s/UI_DIR/$base_url/g;
+        $content =~ s!SWAGGER_URL!uri_for( '/swagger.json'  )!eg;
+
+        $content;
+    };
+
+    get $base_url.'/**' => sub {
+        my $file = $plugin->ui_dir->child( @{ (splat())[0] } );
+
+        send_error "file not found", 404 unless -f $file;
+
+        send_file $file, system_path => 1;
+    };
+
+}
 
 # TODO make the doc url configurable
 
@@ -130,10 +237,17 @@ get '/swagger.json' => sub {
 
 =head1 EXPORTED KEYWORDS
 
-=head2 swagger_auto_discover
+=head2 swagger_auto_discover skip => \@list
 
 Populates the Swagger document with information of all
 the routes of the application.
+
+Accepts an optional C<skip> parameter that takes an arrayref of
+routes that shouldn't be added to the Swagger document. The routes
+can be specified as-is, or via regular expressions. If no skip list is given, defaults to 
+the c<auto_discover_skip> configuration value.
+
+    swagger_auto_discover skip => [ '/swagger.json', qr#^/doc/# ];
 
 The information of a route won't be altered if it's 
 already present in the document.
@@ -165,6 +279,8 @@ routes dynamically.
 register swagger_auto_discover => sub {
     my %args = @_;
 
+    $args{skip} ||= $plugin->auto_discover_skip;
+
     my $routes = Dancer::App->current->registry->routes;
 
     my $doc = $plugin->doc->{paths};
@@ -175,7 +291,7 @@ register swagger_auto_discover => sub {
 
             next if ref $pattern eq 'Regexp';
 
-            next if grep { warn $_ eq $pattern; $pattern eq $_ } @{ $args{skip} || [] };
+            next if grep { ref $_ ? $pattern =~ $_ : $pattern eq $_ } @{ $args{skip} };
 
             $pattern =~ s#(?<=/):(\w+)(?=/|$)#{$1}#g;
 
