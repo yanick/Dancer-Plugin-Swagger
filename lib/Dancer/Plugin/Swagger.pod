@@ -76,20 +76,6 @@ If an url begins with C<qr>, it will be compiled as a regular expression.
 
 Defauls to C</swagger.json> and, if C<show_ui> is C<true>, all the urls under C<ui_url>.
 
-=head2 validate_response 
-
-If set to C<true>, calls to C<swagger_response> will verify if a schema is defined 
-for the response, and if so validate against it. L<JSON::Schema> is used for the
-validation (and this required if this option is used).
-
-Defaults to C<false>.
-
-=head2 strict_validation
-
-If set to C<true>, dies if a call to C<swagger_response> doesn't find a schema for its response.
-
-Defaults to C<false>.
-
 =head1 PLUGIN KEYWORDS
 
 =head2 swagger_path \%args, $route

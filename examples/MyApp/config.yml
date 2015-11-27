@@ -29,8 +29,6 @@ engines:
 plugins:
     Swagger:
         ui_dir: ../../share/
-        validate_response: 1
-        strict_validation: 1
 
 # template: "template_toolkit"
 # engines:
