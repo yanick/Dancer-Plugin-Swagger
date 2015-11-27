@@ -234,6 +234,16 @@ sub swagger_response {
 
 register swagger_response => \&swagger_response;
 
+register swagger_definition => sub {
+    my %defs = @_;
+
+    $plugin->doc->{definitions} ||= {};
+
+    while( my($k,$v)=each%defs ) {
+        $plugin->doc->{definitions}{$k} = $v;
+    }
+};
+
 register_plugin;
 
 1;

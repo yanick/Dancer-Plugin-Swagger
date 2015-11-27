@@ -179,16 +179,7 @@ used by the C<swagger_template> plugin keyword.
     };
 
 Calls the template for the C<$code> response, passing it C<$args>. If C<$code> is numerical, also set
-the response's status to that value. The response will be validated if the configuration parameter 
-C<validate_response> is set, just like for C<swagger_response>.
-
-
-=head2 swagger_response $code, $data
-
-If the configuration parameter C<validate_response> is set to true and a JSON schema is given
-for the C<$code> response, validates C<$data> against it. 
-
-If C<$code> is not given, uses the current response status. If C<$code> is given, set the response status.
+the response's status to that value. 
 
 
 =head2 swagger_auto_discover skip => \@list
@@ -228,7 +219,18 @@ to be called at the very end of your module. Alternatively, C<swagger_auto_disco
 can be called more than once safely -- which can be useful if an application creates
 routes dynamically.
 
-=cut
+=head2 swagger_definition $name => $definition, ...
+
+Adds a schema (or more) to the definition section of the Swagger document.
+
+    swagger_definition 'Judge' => {
+        type => 'object',
+        required => [ 'fullname' ],
+        properties => {
+            fullname => { type => 'string' },
+            seasons => { type => 'array', items => { type => 'integer' } },
+        }
+    };
 
 
 =head1 EXAMPLES

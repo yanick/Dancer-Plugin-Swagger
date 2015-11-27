@@ -18,6 +18,15 @@ my %judge = (
     },
 );
 
+swagger_definition 'Judge' => {
+    type => 'object',
+    required => [ 'fullname' ],
+    properties => {
+        fullname => { type => 'string' },
+        seasons  => { type => 'array', items => { type => 'integer' } },
+    }
+};
+
 swagger_path {
     description => 'Returns information about a judge',
     parameters => [
