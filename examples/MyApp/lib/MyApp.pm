@@ -26,9 +26,29 @@ swagger_path {
             description => 'Last name of the judge',
         },
     ],
+    responses => {
+        404 => {
+            template => sub { +{ error => "judge '@{[ shift ]}' not found" } },
+            schema => {
+                type => 'object',
+                required => [ 'error' ],
+                properties => {
+                    error => { type => 'string' },
+                }
+            },
+        },
+        200 => {
+            description => 'the judge information',
+            example => {
+                fullname => 'Mary Ann Murphy',
+                seasons => [ 3..5, 6, 8..10 ],
+            },
+            schema => { '$ref' => "#/definitions/Judge" },
+        },
+    },
 },
 get '/judge/:judge_name' => sub {
-    return $judge{ param('judge_name') };
+    $judge{ param('judge_name') } || swagger_template 404, param('judge_name');
 };
 
 #swagger_auto_discover();

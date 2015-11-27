@@ -9,7 +9,8 @@ use MooseX::MungeHas 'is_ro';
 
 use Carp;
 use Hash::Merge;
-use List::AllUtils qw/ first /;
+use Clone 'clone';
+use List::AllUtils qw/ first any none /;
 
 has route => ( handles => [ 'pattern' ] );
 
@@ -21,6 +22,8 @@ has method => sub {
 has path => sub {
     dancer_pattern_to_swagger_path( $_[0]->route->pattern );
 };
+
+has responses => ( predicate => 1);
 
 has description => ( predicate => 1 );
 
@@ -63,6 +66,38 @@ sub add_to_doc {
 
     $m->{description} = $self->description if $self->has_description;
     $m->{parameters} = $self->parameters if $self->has_parameters;
+
+    if( $self->has_responses ) {
+        $m->{responses} = clone $self->responses;
+
+        for my $r ( values %{$m->{responses}} ) {
+            delete $r->{template};
+
+            if( my $example = delete $r->{example} ) {
+                my $serializer = Dancer::engine('serializer');
+                die "Don't know content type for serializer ", ref $serializer
+                    if none { $serializer->isa($_) } qw/ Dancer::Serializer::JSON Dancer::Serializer::YAML /;
+                $r->{examples}{$serializer->content_type} = $example;
+            }
+        }
+    }
+
+
+}
+
+sub validate_response {
+    my( $self, $code, $data, $strict ) = @_;
+
+    my $schema = $self->responses->{$code}{schema};
+
+    die 'no schema found for ', join ' | ' , $self->method, $self->path, $code
+        unless $schema or not $strict;
+
+    my $result = load_class('JSON::Schema')->new($schema);
+
+    return if $result;
+
+    die join "\n", map { "* " . $_ } $result->errors;
 }
 
 sub BUILD {

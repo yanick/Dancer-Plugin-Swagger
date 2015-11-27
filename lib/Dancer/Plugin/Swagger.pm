@@ -23,10 +23,12 @@ use Dancer::Plugin::Swagger::Path;
 use Moo;
 
 with 'MooX::Singleton';
+use MooseX::MungeHas 'is_ro';
 use Class::Load qw/ load_class /;
 
 use Path::Tiny;
 use File::ShareDir::Tarball;
+use Class::Load qw/ load_class /;
 
 sub import {
     $Dancer::Plugin::Swagger::FIRST_LOADED ||= caller;
@@ -119,6 +121,9 @@ has auto_discover_skip => (
     },
 );
 
+has validate_response => sub { 0 };
+has strict_validation => sub { 0 };
+
 my $plugin = __PACKAGE__->instance;
 
 if ( $plugin->show_ui ) {
@@ -179,16 +184,6 @@ register swagger_auto_discover => sub {
     }
 };
 
-register swagger_response => sub {
-    my %arg = @_;
-
-
-    Dancer::Plugin::Swagger::Response->new(
-        %arg
-    );
-};
-
-
 register swagger_path => sub {
     my @routes;
     push @routes, pop @_ while eval { $_[-1]->isa('Dancer::Route') };
@@ -213,12 +208,31 @@ register swagger_path => sub {
 };
 
 register swagger_template => sub {
-    my ( $vars, $status ) = reverse @_;
-    $status ||= 'default';
-    $vars ||= {};
 
-    return $Dancer::Plugin::Swagger::THIS_ACTION->{hello};
+    my $vars = pop;
+    my $status = shift || Dancer::status();
+
+    my $template = $Dancer::Plugin::Swagger::THIS_ACTION->{responses}{$status}{template}
+        or die "no template found for response $status";
+
+    Dancer::status( $status ) if $status =~ /^\d{3}$/;
+
+    return swagger_response( $status, $template->($vars) );
 };
+
+sub swagger_response {
+    my $data = pop;
+
+    my $status = Dancer::status(@_);
+
+    $Dancer::Plugin::Swagger::THIS_ACTION->validate_response( 
+        $status => $data, $plugin->strict_validation 
+    ) if $plugin->validate_response;
+
+    $data;
+}
+
+register swagger_response => \&swagger_response;
 
 register_plugin;
 
