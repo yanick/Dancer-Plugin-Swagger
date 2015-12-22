@@ -1,5 +1,7 @@
 Revision history for Dancer-Plugin-Swagger
 
-{{$NEXT}}
-
+0.0.1 2015-12-22
   - First version, unleashed on an unsuspecting world.
+
+  [ STATISTICS ]
+    - code churn: 5 files changed, 290 insertions(+), 253 deletions(-)
