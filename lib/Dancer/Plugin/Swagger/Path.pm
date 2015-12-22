@@ -29,7 +29,8 @@ has responses => ( predicate => 1);
 has description => ( predicate => 1 );
 
 has parameters => 
-    lazy => sub { [] },
+    lazy => 1,
+    default => sub { [] },
     predicate => 1,
 ;
 
@@ -42,7 +43,7 @@ sub parameter {
 
     my $p = first { $_->{name} eq $param } @{ $self->parameters };
    
-    push @{ $self->parameters }, $p = { name => $param }
+    push @{ $self->parameters || [] }, $p = { name => $param }
         unless $p;
 
     %$p = %{Hash::Merge::merge( $p, $args )};

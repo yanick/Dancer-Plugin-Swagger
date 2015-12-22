@@ -15,7 +15,6 @@ use warnings;
 use Dancer;
 use Dancer::Plugin;
 use Dancer::Plugin::REST;
-use Dancer::Plugin::CORS;
 use PerlX::Maybe;
 
 use Dancer::Plugin::Swagger::Path;
