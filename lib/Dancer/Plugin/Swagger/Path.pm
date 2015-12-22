@@ -11,6 +11,7 @@ use Carp;
 use Hash::Merge;
 use Clone 'clone';
 use List::AllUtils qw/ first any none /;
+use JSON;
 
 has route => ( handles => [ 'pattern' ] );
 
