@@ -90,6 +90,8 @@ sub add_to_doc {
 sub validate_response {
     my( $self, $code, $data, $strict ) = @_;
 
+    $data++; # TODO
+
     my $schema = $self->responses->{$code}{schema};
 
     die 'no schema found for ', join ' | ' , $self->method, $self->path, $code
