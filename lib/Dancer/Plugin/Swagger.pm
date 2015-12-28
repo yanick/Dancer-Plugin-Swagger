@@ -266,14 +266,14 @@ __END__
 
 =head1 DESCRIPTION
 
-This plugin provides tools to create and access a L<http://swagger.io/|Swagger> specification file for a
+This plugin provides tools to create and access a L<Swagger|http://swagger.io/> specification file for a
 Dancer REST web service.
 
 Overview of C<Dancer::Plugin::Swagger>'s features:
 
 =over
 
-=item Can create a f</swagger.json> REST specification file.
+=item Can create a F</swagger.json> REST specification file.
 
 =item Can auto-discover routes and add them to the swagger file.
 
