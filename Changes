@@ -4,6 +4,7 @@ Revision history for Dancer-Plugin-Swagger
   [ API CHANGES ]
 
   [ BUG FIXES ]
+  - POd syntax fixes (GH#1, moltar)
 
   [ DOCUMENTATION ]
 
