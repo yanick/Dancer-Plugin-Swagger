@@ -8,6 +8,7 @@ Revision history for Dancer-Plugin-Swagger
   [ DOCUMENTATION ]
 
   [ ENHANCEMENTS ]
+  - Responses can now be validated via JSON::Schemas::AsType.
 
   [ NEW FEATURES ]
 

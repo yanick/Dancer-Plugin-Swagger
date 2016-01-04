@@ -120,8 +120,8 @@ has auto_discover_skip => (
     },
 );
 
-has validate_response => sub { 0 };
-has strict_validation => sub { 0 };
+has validate_response => sub { plugin_setting->{validate_response} };
+has strict_validation => sub { plugin_setting->{strict_validation} };
 
 my $plugin = __PACKAGE__->instance;
 
@@ -211,12 +211,11 @@ register swagger_template => sub {
     my $vars = pop;
     my $status = shift || Dancer::status();
 
-    my $template = $Dancer::Plugin::Swagger::THIS_ACTION->{responses}{$status}{template}
-        or die "no template found for response $status";
+    my $template = $Dancer::Plugin::Swagger::THIS_ACTION->{responses}{$status}{template};
 
     Dancer::status( $status ) if $status =~ /^\d{3}$/;
 
-    return swagger_response( $status, $template->($vars) );
+    return swagger_response( $status, $template ? $template->($vars) : $vars );
 };
 
 sub swagger_response {
@@ -326,6 +325,20 @@ List of urls that should not be added to the Swagger document by C<swagger_auto_
 If an url begins with C<qr>, it will be compiled as a regular expression.
 
 Defauls to C</swagger.json> and, if C<show_ui> is C<true>, all the urls under C<ui_url>.
+
+=head2 validate_response 
+
+If set to C<true>, calls to C<swagger_response> will verify if a schema is defined 
+for the response, and if so validate against it. L<JSON::Schema::AsType> is used for the
+validation (and this required if this option is used).
+
+Defaults to C<false>.
+
+=head2 strict_validation
+
+If set to C<true>, dies if a call to C<swagger_response> doesn't find a schema for its response.
+
+Defaults to C<false>.
 
 =head1 PLUGIN KEYWORDS
 

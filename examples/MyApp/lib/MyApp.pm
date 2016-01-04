@@ -57,7 +57,9 @@ swagger_path {
     },
 },
 get '/judge/:judge_name' => sub {
-    $judge{ param('judge_name') } || swagger_template 404, param('judge_name');
+    $judge{ param('judge_name') }
+        ? swagger_template $judge{ param('judge_name') }
+        : swagger_template 404, param('judge_name');
 };
 
 #swagger_auto_discover();
