@@ -8,11 +8,17 @@ Revision history for Dancer-Plugin-Swagger
   [ DOCUMENTATION ]
 
   [ ENHANCEMENTS ]
-  - Responses can now be validated via JSON::Schemas::AsType.
 
   [ NEW FEATURES ]
 
   [ STATISTICS ]
+
+0.1.0 2016-01-03
+  [ ENHANCEMENTS ]
+    - Responses can now be validated via JSON::Schemas::AsType.
+
+  [ STATISTICS ]
+    - code churn: 5 files changed, 45 insertions(+), 13 deletions(-)
 
 0.0.2 2016-01-03
   [ BUG FIXES ]
