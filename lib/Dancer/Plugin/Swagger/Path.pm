@@ -12,6 +12,7 @@ use Hash::Merge;
 use Clone 'clone';
 use List::AllUtils qw/ first any none /;
 use JSON;
+use Class::Load qw/ load_class /;
 
 has route => ( handles => [ 'pattern' ] );
 
@@ -23,6 +24,10 @@ has method => sub {
 has path => sub {
     dancer_pattern_to_swagger_path( $_[0]->route->pattern );
 };
+
+has plugin => (
+    is => 'ro',
+);
 
 has responses => ( predicate => 1);
 
@@ -90,18 +95,25 @@ sub add_to_doc {
 sub validate_response {
     my( $self, $code, $data, $strict ) = @_;
 
-    $data++; # TODO
-
     my $schema = $self->responses->{$code}{schema};
 
-    die 'no schema found for ', join ' | ' , $self->method, $self->path, $code
+    die "no schema found for return code $code for ", join ' ' , uc($self->method), $self->path
         unless $schema or not $strict;
 
-    my $result = load_class('JSON::Schema')->new($schema);
+    return unless $schema;
 
-    return if $result;
+    my $plugin = Dancer::Plugin::Swagger->instance;
 
-    die join "\n", map { "* " . $_ } $result->errors;
+    $schema = {
+        definitions => $plugin->doc->{definitions},
+        properties => { response => $schema },
+    };
+
+    my $result = load_class('JSON::Schema::AsType')->new( schema => $schema)->validate_explain({ response => $data });
+
+    return unless $result;
+
+    die join "\n", map { "* " . $_ } @$result;
 }
 
 sub BUILD {
