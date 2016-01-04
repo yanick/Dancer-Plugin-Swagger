@@ -4,7 +4,6 @@ Revision history for Dancer-Plugin-Swagger
   [ API CHANGES ]
 
   [ BUG FIXES ]
-  - POd syntax fixes (GH#1, moltar)
 
   [ DOCUMENTATION ]
 
@@ -13,6 +12,13 @@ Revision history for Dancer-Plugin-Swagger
   [ NEW FEATURES ]
 
   [ STATISTICS ]
+
+0.0.2 2016-01-03
+  [ BUG FIXES ]
+    - POd syntax fixes (GH#1, moltar)
+
+  [ STATISTICS ]
+    - code churn: 3 files changed, 19 insertions(+), 2 deletions(-)
 
 0.0.1 2015-12-22
   - First version, unleashed on an unsuspecting world.
