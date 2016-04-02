@@ -190,7 +190,45 @@ register swagger_path => sub {
     # we don't process HEAD
     @routes = grep { $_->method ne 'head' } @routes;
 
+    my $description;
+    if( @_ and not ref $_[0] ) {
+        $description = shift;
+        $description =~ s/^\s*\n//;
+        
+        $description =~ s/^$1//mg
+            if $description =~ /^(\s+)/;
+    }
+
     my $arg = shift @_ || {}; 
+
+    $arg->{description} = $description if $description;
+
+    # groom the parameters
+    if ( my $p = $arg->{parameters} ) {
+        if( ref $p eq 'HASH' ) {
+            $_ = { description => $_ } for grep { ! ref } values %$p;
+            $p = [ map { +{ name => $_, %{$p->{$_}} } } sort keys %$p ];
+        }
+
+        # deal with named parameters
+        my @p;
+        while( my $k = shift @$p ) {
+            unless( ref $k ) { 
+                my $value = shift @$p;
+                $value = { description => $value } unless ref $value;
+                $value->{name} = $k;
+                $k = $value;
+            }
+            push @p, $k;
+        }
+        $p = \@p;
+
+        # set defaults
+        $p = [ map { +{ in => 'query', type => 'string', %$_ } } @$p ];
+        
+        $arg->{parameters} = $p;
+    }
+
 
     for my $route ( @routes ) {
         my $path = Dancer::Plugin::Swagger::Path->new(%$arg, route => $route);
@@ -342,7 +380,7 @@ Defaults to C<false>.
 
 =head1 PLUGIN KEYWORDS
 
-=head2 swagger_path \%args, $route
+=head2 swagger_path $description, \%args, $route
 
     swagger_path {
         description => 'Returns info about a judge',
@@ -352,6 +390,31 @@ Defaults to C<false>.
     };
 
 Registers a route as a swagger path item in the swagger document.
+
+C<%args> is optional.
+
+The C<$description> is optional as well, and can also be defined as part of the 
+C<%args>.
+
+    # equivalent to the main example
+    swagger_path 'Returns info about a judge',
+    get '/judge/:judge_name' => sub {
+        ...;
+    };
+
+If the C<$description> spans many lines, it will be left-trimmed.
+
+    swagger_path q{ 
+        Returns info about a judge.
+
+        Some more documentation can go here.
+
+            And this will be seen as a performatted block
+            by swagger.
+    }, 
+    get '/judge/:judge_name' => sub {
+        ...;
+    };
 
 =head3 Supported arguments
 
@@ -379,7 +442,7 @@ Optional arrayref of tags assigned to the path.
 
 =item parameters
 
-List of parameters for the path item. Must be an arrayref.
+List of parameters for the path item. Must be an arrayref or a hashref.
 
 Route parameters are automatically populated. E.g., 
 
@@ -395,6 +458,43 @@ is equivalent to
     },
     get '/judge/:judge_name' => { ... };
 
+If the parameters are passed as a hashref, the keys are the names of the parameters, and they will
+appear in the swagger document following their alphabetical order.
+
+If the parameters are passed as an arrayref, they will appear in the document in the order
+in which they are passed. Additionally, each parameter can be given as a hashref, or can be a 
+C<< name => arguments >> pair. 
+
+In both format, for the key/value pairs, a string value is considered to be the 
+C<description> of the parameter.
+
+Finally, if not specified explicitly, the C<in> argument of a parameter defaults to C<query>,
+and its type to C<string>.
+
+    parameters => [
+        { name => 'bar', in => 'path', required => 1, type => 'string' },
+        { name => 'foo', in => 'query', type => 'string', description => 'yadah' },
+    ],
+
+    # equivalent arrayref with mixed pairs/non-pairs
+
+    parameters => [
+        { name => 'bar', in => 'path', required => 1, type => 'string' },
+        foo => { in => 'query', type => 'string', description => 'yadah' },
+    ],
+
+    # equivalent hashref format 
+    
+    parameters => {
+        bar => { in => 'path', required => 1, type => 'string' },
+        foo => { in => 'query', type => 'string', description => 'yadah' },
+    },
+
+    # equivalent, using defaults
+    parameters => {
+        bar => { in => 'path', required => 1 },
+        foo => 'yadah',
+    },
 
 =item responses
 
