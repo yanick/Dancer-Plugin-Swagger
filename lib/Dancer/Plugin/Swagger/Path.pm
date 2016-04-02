@@ -1,12 +1,7 @@
 package Dancer::Plugin::Swagger::Path;
+our $AUTHORITY = 'cpan:YANICK';
 # ABSTRACT: Internal representation of a swagger path
-
-=head1 DESCRIPTION
-
-Objects of this class are used by L<Dancer::Plugin::Swagger> to represent
-a path in the Swagger document.
-
-=cut
+$Dancer::Plugin::Swagger::Path::VERSION = '0.2.0';
 
 use strict;
 use warnings;
@@ -137,4 +132,34 @@ sub BUILD {
 
 1;
 
+__END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer::Plugin::Swagger::Path - Internal representation of a swagger path
+
+=head1 VERSION
+
+version 0.2.0
+
+=head1 DESCRIPTION
+
+Objects of this class are used by L<Dancer::Plugin::Swagger> to represent
+a path in the Swagger document.
+
+=head1 AUTHOR
+
+Yanick Champoux <yanick@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2015 by Yanick Champoux.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
