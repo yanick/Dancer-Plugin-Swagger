@@ -373,6 +373,10 @@ Defaults to the route's path.
 
 The path item's description.
 
+=item tags
+
+Optional arrayref of tags assigned to the path.
+
 =item parameters
 
 List of parameters for the path item. Must be an arrayref.

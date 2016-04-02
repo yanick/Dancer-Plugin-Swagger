@@ -1,4 +1,12 @@
 package Dancer::Plugin::Swagger::Path;
+# ABSTRACT: Internal representation of a swagger path
+
+=head1 DESCRIPTION
+
+Objects of this class are used by L<Dancer::Plugin::Swagger> to represent
+a path in the Swagger document.
+
+=cut
 
 use strict;
 use warnings;
@@ -15,6 +23,8 @@ use JSON;
 use Class::Load qw/ load_class /;
 
 has route => ( handles => [ 'pattern' ] );
+
+has tags => ( predicate => 1 );
 
 has method => sub {
     eval { $_[0]->route->method } 
@@ -69,6 +79,7 @@ sub add_to_doc {
 
     $m->{description} = $self->description if $self->has_description;
     $m->{parameters} = $self->parameters if $self->has_parameters;
+    $m->{tags} = $self->tags if $self->has_tags;
 
     if( $self->has_responses ) {
         $m->{responses} = clone $self->responses;
