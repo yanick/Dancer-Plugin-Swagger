@@ -27,7 +27,6 @@ use Class::Load qw/ load_class /;
 
 use Path::Tiny;
 use File::ShareDir::Tarball;
-use Class::Load qw/ load_class /;
 
 sub import {
     $Dancer::Plugin::Swagger::FIRST_LOADED ||= caller;
@@ -271,13 +270,14 @@ sub swagger_response {
 register swagger_response => \&swagger_response;
 
 register swagger_definition => sub {
-    my %defs = @_;
+    my( $name, $def ) = @_;
 
     $plugin->doc->{definitions} ||= {};
 
-    while( my($k,$v)=each%defs ) {
-        $plugin->doc->{definitions}{$k} = $v;
-    }
+    $plugin->doc->{definitions}{$name} = $def;
+
+    return { '$ref', => '#/definitions/'.$name };
+
 };
 
 register_plugin;
@@ -599,6 +599,21 @@ Adds a schema (or more) to the definition section of the Swagger document.
             seasons => { type => 'array', items => { type => 'integer' } },
         }
     };
+
+The function returns the reference to the definition that can be then used where
+schemas are used.
+
+    my $Judge = swagger_definition 'Judge' => { ... };
+    # $Judge is now the hashref '{ '$ref' => '#/definitions/Judge' }'
+    
+    # later on...
+    swagger_path {
+        responses => {
+            default => { schema => $Judge },
+        },
+    },
+    get '/judge/:name' => sub { ... };
+    
 
 
 =head1 EXAMPLES

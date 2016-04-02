@@ -10,6 +10,7 @@ Revision history for Dancer-Plugin-Swagger
   [ ENHANCEMENTS ]
   - Paths can now have tags.
   - Add sugar to 'swagger_path'.
+  - 'swagger_definition' now returns the schema ref.
 
   [ NEW FEATURES ]
 
