@@ -5,7 +5,7 @@ use warnings;
 
 use  Test::WWW::Mechanize::PSGI;
 
-use Test::More tests => 6;
+use Test::More tests => 2;
 use Test::Deep;
 
 
