@@ -127,16 +127,14 @@ my $plugin = __PACKAGE__->instance;
 if ( $plugin->show_ui ) {
     my $base_url = $plugin->ui_url;
 
-    get $base_url => sub {
+    get $base_url => sub { redirect $base_url . '/?url=/swagger.json' };
+
+    get $base_url . '/' => sub {
         my $file = $plugin->ui_dir->child('index.html');
 
         send_error "file not found", 404 unless -f $file;
 
-        my $content = $file->slurp;
-        $content =~ s/UI_DIR/$base_url/g;
-        $content =~ s!SWAGGER_URL!uri_for( '/swagger.json'  )!eg;
-
-        $content;
+        return $file->slurp;
     };
 
     get $base_url.'/**' => sub {
