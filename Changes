@@ -4,6 +4,7 @@ Revision history for Dancer-Plugin-Swagger
   [ API CHANGES ]
 
   [ BUG FIXES ]
+    -  no default type for params defined by schema. (GH#2, Mike Whitaker)
 
   [ DOCUMENTATION ]
 
