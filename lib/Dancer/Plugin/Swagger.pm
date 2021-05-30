@@ -216,12 +216,16 @@ register swagger_path => sub {
                 $value->{name} = $k;
                 $k = $value;
             }
+            if (!exists($k->{schema}) && !exists($k->{type})) {
+                # set a default type iff it's missing and this doesn't reference a schema
+                $k->{type} = 'string';
+            }
             push @p, $k;
         }
         $p = \@p;
 
         # set defaults
-        $p = [ map { +{ in => 'query', type => 'string', %$_ } } @$p ];
+        $p = [ map { +{ in => 'query', %$_ } } @$p ];
         
         $arg->{parameters} = $p;
     }
