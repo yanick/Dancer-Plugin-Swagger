@@ -8,6 +8,7 @@ Revision history for Dancer-Plugin-Swagger
  [DOCUMENTATION]
 
  [ENHANCEMENTS]
+ - use Module::Version for API version munging. (GH#3, Mike Whitaker)
 
  [NEW FEATURES]
 
