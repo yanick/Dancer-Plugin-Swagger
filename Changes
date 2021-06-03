@@ -1,18 +1,11 @@
 Revision history for Dancer-Plugin-Swagger
 
-{{$NEXT}}
- [API CHANGES]
-
- [BUG FIXES]
-
- [DOCUMENTATION]
-
+0.3.0 2021-06-03
  [ENHANCEMENTS]
  - use Module::Version for API version munging. (GH#3, Mike Whitaker)
 
- [NEW FEATURES]
-
  [STATISTICS]
+ - code churn: 3 files changed, 35 insertions(+), 29 deletions(-)
 
 0.2.1 2021-05-30
  [BUG FIXES]

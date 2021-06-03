@@ -7,8 +7,9 @@
 # TODO: make /swagger.json configurable
 
 package Dancer::Plugin::Swagger;
+our $AUTHORITY = 'cpan:YANICK';
 # ABSTRACT: create Swagger documentation of the app REST interface 
-
+$Dancer::Plugin::Swagger::VERSION = '0.3.0';
 use strict;
 use warnings;
 
@@ -286,6 +287,17 @@ register_plugin;
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer::Plugin::Swagger - create Swagger documentation of the app REST interface 
+
+=head1 VERSION
+
+version 0.3.0
 
 =head1 SYNOPSIS
 
@@ -299,7 +311,6 @@ __END__
     get '/choreograph/:name' => sub { ... };
 
     1;
-
 
 =head1 DESCRIPTION
 
@@ -317,7 +328,6 @@ Overview of C<Dancer::Plugin::Swagger>'s features:
 =item Can provide a Swagger UI version of the swagger documentation.
 
 =back
-
 
 =head1 CONFIGURATION
 
@@ -530,7 +540,6 @@ the example will be expanded to have the right content-type key.
 The special key C<template> will not appear in the Swagger doc, but will be
 used by the C<swagger_template> plugin keyword.
 
-
 =back
 
 =head2 swagger_template $code, $args
@@ -548,7 +557,6 @@ used by the C<swagger_template> plugin keyword.
 
 Calls the template for the C<$code> response, passing it C<$args>. If C<$code> is numerical, also set
 the response's status to that value. 
-
 
 =head2 swagger_auto_discover skip => \@list
 
@@ -579,7 +587,6 @@ to automatically make them look nice.
 
         # won't be picked up
     get qr#/user/(\d+)# => ...;
-
 
 Note that routes defined after C<swagger_auto_discover> has been called won't 
 be added to the Swagger document. Typically, you'll want C<swagger_auto_discover>
@@ -613,8 +620,6 @@ schemas are used.
         },
     },
     get '/judge/:name' => sub { ... };
-    
-
 
 =head1 EXAMPLES
 
@@ -628,5 +633,15 @@ See the F<examples/> directory of the distribution for a working example.
 
 =back
 
-=cut
+=head1 AUTHOR
 
+Yanick Champoux <yanick@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2021, 2016, 2015 by Yanick Champoux.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
