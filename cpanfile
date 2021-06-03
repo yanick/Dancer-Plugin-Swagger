@@ -12,6 +12,7 @@ requires "File::ShareDir::Tarball" => "0";
 requires "Hash::Merge" => "0";
 requires "JSON" => "0";
 requires "List::AllUtils" => "0";
+requires "Module::Version" => "0";
 requires "Moo" => "0";
 requires "MooX::Singleton" => "0";
 requires "MooseX::MungeHas" => "0";

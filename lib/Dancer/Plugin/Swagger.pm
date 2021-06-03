@@ -27,6 +27,7 @@ use Class::Load qw/ load_class /;
 
 use Path::Tiny;
 use File::ShareDir::Tarball;
+use Module::Version qw/ get_version /;
 
 sub import {
     $Dancer::Plugin::Swagger::FIRST_LOADED ||= caller;
@@ -54,10 +55,7 @@ has doc => (
         ) {
             $doc->{info}{description} = $desc;
         }
-
-        $doc->{info}{version} = eval {
-            $self->main_api_module->VERSION
-        } // '0.0.0';
+        $doc->{info}{version} = get_version($self->main_api_module) // '0.0.0';
 
         $doc;
         
